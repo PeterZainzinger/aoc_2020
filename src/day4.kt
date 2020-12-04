@@ -1,65 +1,35 @@
 import java.io.File
 import java.lang.Integer.parseInt
 
-
 val requiredFields = listOf("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")
 
 data class Passport(val entries: Map<String, String>) {
     fun valid() = requiredFields.all { entries.containsKey(it) }
-
-    fun validStrict(): Boolean {
-        val allFields = requiredFields.all { entries.containsKey(it) }
-        if (!allFields) {
-            return false
-        }
-        val birthYear = parseInt(entries["byr"])
-        if (birthYear !in 1920..2002) {
-            return false
-        }
-
-        val issuesYear = parseInt(entries["iyr"])
-        if (issuesYear !in 2010..2020) {
-            return false
-        }
-        val expireYear = parseInt(entries["eyr"])
-        if (expireYear !in 2020..2030) {
-            return false
-        }
-        val heightData = entries.getValue("hgt")
-
-        if (heightData.endsWith("cm")) {
-            val hn = parseInt(heightData.subSequence(0, heightData.length - 2).toString())
-            if (hn !in 150..193) {
-                return false
+    fun validStrict() = when {
+        !valid() -> false
+        !requiredFields.all { entries.containsKey(it) } -> false
+        parseInt(entries["byr"]) !in 1920..2002 -> false
+        parseInt(entries["iyr"]) !in 2010..2020 -> false
+        parseInt(entries["eyr"]) !in 2020..2030 -> false
+        !Regex("^#[a-f0-9]{6}$").matches(entries["hcl"]!!) -> false
+        !listOf("amb", "blu", "brn", "gry", "grn", "hzl", "oth").contains(entries["ecl"]) -> false
+        !Regex("\\d{9}").matches(entries["pid"]!!) -> false
+        else -> {
+            val heightData = entries.getValue("hgt")
+            when {
+                heightData.endsWith("cm") -> {
+                    val hn = parseInt(heightData.subSequence(0, heightData.length - 2).toString())
+                    hn in 150..193
+                }
+                heightData.endsWith("in") -> {
+                    val hn = parseInt(heightData.subSequence(0, heightData.length - 2).toString())
+                    hn in 59..76
+                }
+                else -> false
             }
-        } else if (heightData.endsWith("in")) {
-            val hn = parseInt(heightData.subSequence(0, heightData.length - 2).toString())
-            if (hn !in 59..76) {
-                return false
-            }
-        } else {
-            return false
         }
-        val hairColor = entries["hcl"]!!
-        if (!Regex("^#[a-f0-9]{6}$").matches(hairColor) || hairColor.length != 7) {
-            return false
-        }
-
-        val eyeColor = entries["ecl"]
-
-        if (!listOf("amb", "blu", "brn", "gry", "grn", "hzl", "oth").contains(eyeColor)) {
-            return false
-        }
-        val pid = entries["pid"]!!
-        if (!Regex("\\d{9}").matches(pid)) {
-            return false
-        } else {
-            println(pid)
-        }
-        return true
     }
 }
-
 
 fun day4() {
     val lines = File("inputs/4.txt")
@@ -73,7 +43,6 @@ fun day4() {
             }.toMap()
         }
         .map { Passport(it) }
-
     println(lines.filter { it.valid() }.size)
     println(lines.filter { it.validStrict() }.size)
 }
