@@ -31,8 +31,7 @@ fun exercise2(lines: List<String>) {
         val hintCount = countHits(lines, right = right, down = down)
         println("$right / $down $hintCount")
         hintCount.toLong()
-    }
-        .foldRight(1L, { a, b -> a * b })
+    }.fold(1L, { a, b -> a * b })
     println(res)
 
 }
