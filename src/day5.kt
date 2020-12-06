@@ -1,8 +1,8 @@
 import java.io.File
 import java.lang.Integer.parseInt
 
-typealias INPUT = List<Line>
-typealias OUTPUT = Int
+private typealias INPUT = List<Line>
+private typealias OUTPUT = Int
 
 
 fun createLine(input: String) = Line(input.substring(0, 7), input.substring(7, 10))
@@ -39,10 +39,10 @@ fun day5() {
 }
 
 
-fun exercise1(input: INPUT)  =
+private fun exercise1(input: INPUT)  =
     input.map { it.seatID() }.maxOrNull()
 
-fun exercise2(input: INPUT): Set<Int> {
+private fun exercise2(input: INPUT): Set<Int> {
     val allIds = input.map { it.seatID() }
     val min = allIds.min()!!
     val max = allIds.max()!!
