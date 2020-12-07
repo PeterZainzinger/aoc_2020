@@ -15,7 +15,7 @@ val alphabet = "abcdefghijklmniopqrstuvwxyz".toSet()
 
 private fun charactersOfAnswers(input: INPUT6, initial: Set<Char>, operation: (Set<Char>, Set<Char>) -> Set<Char>) =
     input.map { items ->
-        items.map { it.toCharArray().toSet() }.toSet().fold(initial = initial, operation = operation).size
+        items.map { it.toCharArray().toSet() }.fold(initial = initial, operation = operation).size
     }.sum()
 
 private fun exercise1(input: INPUT6) = charactersOfAnswers(input, emptySet()) { a, b -> a union b }
