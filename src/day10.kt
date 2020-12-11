@@ -1,4 +1,9 @@
 import java.io.File
+import java.lang.Math.min
+import java.lang.Math.pow
+import kotlin.math.pow
+
+var memory = mutableMapOf<Int, Long>()
 
 fun day10() {
     val input = File("inputs/10.txt").readLines().map { Integer.parseInt(it) }.sorted()
@@ -13,11 +18,19 @@ fun day10() {
     val count1 = diffs.filter { it == 1 }.size
     val count3 = diffs.filter { it == 3 }.size
     println(count1 * count3)
-    val counted = countArrangements(input)
-    println(counted)
+    listOf(
+        ::countArrangements to "my solution",
+        ::redditSolution to "reddit",
+        ::countArrangements to "my solution",
+    ).forEach {(f,name)->
+        val start = System.nanoTime()
+        val counted = f(input)
+        println("name: ${name.padEnd(15)} result: $counted time:(${(System.nanoTime() - start) / (10.0.pow(6.0))})")
+        memory = mutableMapOf()
+    }
+
 }
 
-val memory = mutableMapOf<Int, Long>()
 
 fun countArrangements(input: List<Int>) = allArrangements(0, options = input + listOf(input.max()!! + 3))
 
@@ -47,3 +60,24 @@ fun allArrangements(last: Int, options: List<Int>): Long = when (val next = opti
     }
 }
 
+fun redditSolution(input: List<Int>): Long {
+    val adapters = input.sorted().toMutableList()
+    adapters.add(0, 0)
+    adapters.add(adapters.last() + 3)
+
+    val options = LongArray(adapters.size)
+    options[options.size - 2] = 1
+
+    for (i in adapters.size - 3 downTo 0) {
+        var currentOptions = 0L
+        for (j in i until min(i + 4, adapters.size)) {
+            if (adapters[j] - adapters[i] <= 3) {
+                ++currentOptions
+                currentOptions += options[j] - 1
+            }
+        }
+        options[i] = currentOptions
+    }
+
+    return options[0]
+}
