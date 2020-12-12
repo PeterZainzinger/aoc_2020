@@ -1,28 +1,28 @@
 import java.io.File
-import java.lang.Math.abs
+import kotlin.math.abs
 
 data class Position(val x: Int, val y: Int) {
-    fun plus(dir: Direction, value: Int) = Position(x + value * dir.dx, y + value * dir.dy)
+    operator fun plus(dir: Direction) = Position(x + dir.dx, y + dir.dy)
     fun manhatten() = abs(x) + abs(y)
 }
 
 data class Direction(val dx: Int, val dy: Int) {
-
-    fun plus(direction: Direction, value: Int) = Direction(dx + value * direction.dx, dy + value * direction.dy)
-
+    operator fun times(value: Int) = Direction(dx * value, dy * value)
+    operator fun plus(direction: Direction) = Direction(
+        dx + direction.dx,
+        dy + direction.dy
+    )
 }
 
-sealed class MoveInstruction() {
+private sealed class MoveInstruction {
     data class Direct(val direction: Direction, val value: Int) : MoveInstruction()
     data class Forward(val value: Int) : MoveInstruction()
     data class ChangeDir(val value: Int) : MoveInstruction()
-
 }
 
 private fun parseMove(input: String): MoveInstruction {
-    val action = input.first()
     val value = input.substring(1 until input.length).toInt()
-    return when (action) {
+    return when (val action = input.first()) {
         'N' -> MoveInstruction.Direct(Direction(0, 1), value = value)
         'S' -> MoveInstruction.Direct(Direction(0, -1), value = value)
         'E' -> MoveInstruction.Direct(Direction(1, 0), value = value)
@@ -34,53 +34,35 @@ private fun parseMove(input: String): MoveInstruction {
     }
 }
 
-fun day12() {
-    val input = File("inputs/12.txt")
-        .readLines()
-        .map { parseMove(it) }
+private fun calcEndPosition(
+    instructions: List<MoveInstruction>,
+    startPosition: Position,
+    startDirection: Direction,
+    f: (Position, Direction, MoveInstruction) -> Pair<Position, Direction>
+) = instructions.fold(startPosition to startDirection) { acc, move -> f(acc.first, acc.second, move) }.first
 
-    val (pos1, _) = input.fold(Position(0, 0) to Direction(1, 0), { acc, new ->
-        val (currentPos, currentDir) = acc
-        calcNextPosition(currentPos, currentDir, new)
-    })
-    println(pos1)
-    println(pos1.manhatten())
-    val (pos2, _) = input.fold(Position(0, 0) to Direction(10, 1), { acc, new ->
-        val (currentPos, currentDir) = acc
-        calcNextPosition2(currentPos, currentDir, new)
-    })
-    println(pos2)
-    println(pos2.manhatten())
-}
-
-fun rotateLeft(value: Int, direction: Direction): Direction = when (value) {
+private fun rotateLeft(value: Int, direction: Direction): Direction = when (value) {
     0 -> direction
-    else -> {
-        val rot90 = Direction(-direction.dy, direction.dx)
-        rotateLeft(value - 90, rot90)
+    else -> rotateLeft(value - 90, Direction(-direction.dy, direction.dx))
+}
+
+private fun calcNextPosition(currentPosition: Position, currentDir: Direction, instruction: MoveInstruction) =
+    when (instruction) {
+        is MoveInstruction.Direct -> currentPosition + instruction.direction * instruction.value to currentDir
+        is MoveInstruction.Forward -> currentPosition + currentDir * instruction.value to currentDir
+        is MoveInstruction.ChangeDir -> currentPosition to rotateLeft(instruction.value, currentDir)
     }
-}
-
-fun calcNextPosition(
-    currentPosition: Position,
-    currentDir: Direction,
-    moveInstruction: MoveInstruction
-) = when (moveInstruction) {
-    is MoveInstruction.Direct -> currentPosition.plus(
-        moveInstruction.direction,
-        moveInstruction.value
-    ) to currentDir
-    is MoveInstruction.Forward -> currentPosition.plus(currentDir, moveInstruction.value) to currentDir
-    is MoveInstruction.ChangeDir -> currentPosition to rotateLeft(moveInstruction.value, currentDir)
-}
 
 
-fun calcNextPosition2(
-    currentPosition: Position,
-    currentDir: Direction,
-    moveInstruction: MoveInstruction
-) = when (moveInstruction) {
-    is MoveInstruction.Direct -> currentPosition to (currentDir.plus(moveInstruction.direction, moveInstruction.value))
-    is MoveInstruction.Forward -> currentPosition.plus(currentDir, moveInstruction.value) to currentDir
-    is MoveInstruction.ChangeDir -> currentPosition to rotateLeft(moveInstruction.value, currentDir)
+private fun calcNextPosition2(currentPosition: Position, currentDir: Direction, instruction: MoveInstruction) =
+    when (instruction) {
+        is MoveInstruction.Direct -> currentPosition to (currentDir + instruction.direction * instruction.value)
+        is MoveInstruction.Forward -> (currentPosition + currentDir * instruction.value) to currentDir
+        is MoveInstruction.ChangeDir -> currentPosition to rotateLeft(instruction.value, currentDir)
+    }
+
+fun day12() {
+    val input = File("inputs/12.txt").readLines().map(::parseMove)
+    println(calcEndPosition(input, Position(0, 0), Direction(1, 0), ::calcNextPosition).manhatten())
+    println(calcEndPosition(input, Position(0, 0), Direction(10, 1), ::calcNextPosition2).manhatten())
 }
