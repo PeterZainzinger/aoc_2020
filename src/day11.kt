@@ -21,7 +21,6 @@ fun day11() {
         .readLines()
         .map { it.toCharArray().toList().map(::readChar) }
     println(countSeated(untilStable(input)))
-    println(calcNextState2(input).toPrettyString())
     println(countSeated(untilStable2(input)))
 
 }
@@ -91,7 +90,6 @@ private fun getAdjent2(state: State, i: Int, j: Int) = listOf(
     }
     res
 }
-// .map { (dx, dy) -> (i + dx) to (j + dy) }.mapNotNull { (i, j) -> getSafe(state, i, j) }
 
 fun calcNextState(state: State) = state.mapIndexed { y, row ->
     row.mapIndexed { x, item ->
