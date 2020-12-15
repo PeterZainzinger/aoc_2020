@@ -21,7 +21,6 @@ fun day7() {
             }
             type to content
         }
-    println(input)
     println(findParents(input, "shiny gold").size)
     println(countChilds(input.toMap(), "shiny gold"))
 

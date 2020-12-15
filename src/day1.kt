@@ -9,7 +9,8 @@ fun day1() {
 
     val (i, j) = findPair(numbers, 2020);
     println(i * j)
-    println(findTriple(numbers, 2020).fold(1, { a, b -> a * b }))
+    val (a, b, c) = findTriple(numbers, 2020)
+    println(a * b * c)
 }
 
 private fun findPair(numbers: List<Int>, target: Int): Pair<Int, Int> {
@@ -23,12 +24,12 @@ private fun findPair(numbers: List<Int>, target: Int): Pair<Int, Int> {
     throw RuntimeException("not found")
 }
 
-private fun findTriple(numbers: List<Int>, target: Int): List<Int> {
+private fun findTriple(numbers: List<Int>, target: Int): Triple<Int, Int, Int> {
     for (i in numbers) {
         for (j in numbers) {
             for (h in numbers) {
                 if (i + j + h == target) {
-                    return listOf(i, j, h)
+                    return Triple(i, j, h)
                 }
             }
         }

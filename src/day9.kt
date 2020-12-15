@@ -6,7 +6,6 @@ fun day9() {
     println(findNonMatching(inputTest, 5, 5))
     val input = File("inputs/9.txt").readLines().map(::parseLong)
     val target2 = findNonMatching(input, 25, 25).first()
-    println(target2)
     val cs = findContinousSum(target2, input)!!
     println(cs.minOrNull()!! + cs.maxOrNull()!!)
 }
