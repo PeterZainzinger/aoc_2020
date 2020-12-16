@@ -3,29 +3,22 @@ import java.lang.RuntimeException
 
 data class TicketClass(val name: String, val options: List<IntRange>) {
     fun containsNumber(value: Int) = options.any { it.contains(value) }
-    override fun toString() = "TicketClass[$name]"
+    override fun toString() = name
 }
 
 data class Ticket(val numbers: List<Int>)
 
 private fun parseTicket(input: String) = input.split("\n").mapIndexed { index, s ->
     when {
-        index == 0 -> null
-        s == "" -> null
-        else -> {
-            Ticket(s.trim().split(",").map { it.toInt() })
-        }
+        index == 0 || s == "" -> null
+        else -> Ticket(s.split(",").map { it.toInt() })
     }
 }.filterNotNull()
 
 
 fun day16() {
-    val input = File("inputs/16.txt")
-        .readText().split("\n\n")
-    val ticketOptions = input
-        .first()
-        .split("\n")
-        .map { it.split(":") }
+    val input = File("inputs/16.txt").readText().split("\n\n")
+    val ticketOptions = input.first().split("\n").map { it.split(":") }
         .map {
             TicketClass(it.first(), it[1].split(" or ").map {
                 val range = it.split("-").map { it.trim().toInt() }
@@ -36,28 +29,20 @@ fun day16() {
     val nearbyTickets = parseTicket(input[2])
     val validTickets = nearbyTickets.filter { validTicket(it, ticketOptions) }
     val matched = matchOptions(ticketOptions, validTickets)
-    println(task1(nearbyTickets,ticketOptions))
-    println(matched.filter { it.key.name.startsWith("departure") }.map { myTicket.numbers[it.value] }
-        .map { it.toLong() }
-        .fold(1L, { a, b -> a * b }))
+    println(task1(nearbyTickets, ticketOptions))
+    println(matched)
+    println(matched.filter { it.key.name.startsWith("departure") }
+        .map { myTicket.numbers[it.value] }.map { it.toLong() }.fold(1L, { a, b -> a * b }))
 }
 
 fun matchOptions(options: List<TicketClass>, tickets: List<Ticket>): Map<TicketClass, Int> {
-    val positionToOptions = (0 until options.size).map { index ->
-        index to options
-    }.toMap().toMutableMap()
+    val positionToOptions = (options.indices).map { index -> index to options }.toMap().toMutableMap()
     tickets.forEach { ticket ->
         ticket.numbers.forEachIndexed { index, i ->
-            // remove option
-            val entry = positionToOptions[index]!!
-            positionToOptions[index] = entry.filter { it.containsNumber(i) }
+            positionToOptions[index] = positionToOptions[index]!!.filter { it.containsNumber(i) }
         }
     }
-    while (true) {
-        val validAssignment = positionToOptions.values.map { it.size }.all { it == 1 }
-        if (validAssignment) {
-            break
-        }
+    while (!positionToOptions.values.map { it.size }.all { it == 1 }) {
         val before = positionToOptions.toMap()
         before.forEach { (i, value) ->
             if (value.size == 1) {
@@ -74,9 +59,7 @@ fun matchOptions(options: List<TicketClass>, tickets: List<Ticket>): Map<TicketC
 }
 
 fun task1(nearby: List<Ticket>, classes: List<TicketClass>) = nearby.map { ticket ->
-    ticket.numbers.filterNot { number ->
-        classes.any { option -> option.containsNumber(number) }
-    }.sum()
+    ticket.numbers.filterNot { number -> classes.any { option -> option.containsNumber(number) } }.sum()
 }.sum()
 
 fun validTicket(ticket: Ticket, classes: List<TicketClass>): Boolean = ticket.numbers.all { number ->
