@@ -17,7 +17,7 @@ private fun parseTicket(input: String) = input.split("\n").mapIndexed { index, s
 
 
 fun day16() {
-    val input = File("inputs/16.txt").readText().split("\n\n")
+    val input = File("inputs/16_a.txt").readText().split("\n\n")
     val ticketOptions = input.first().split("\n").map { it.split(":") }
         .map {
             TicketClass(it.first(), it[1].split(" or ").map {
