@@ -1,7 +1,7 @@
 import java.io.File
 import kotlin.math.pow
 
-fun main() = day19()
+fun main() = day20()
 //fun main() = all()
 
 fun all() {
