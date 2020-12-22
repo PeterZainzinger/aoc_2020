@@ -1,7 +1,7 @@
 import java.io.File
 import kotlin.math.pow
 
-fun main() = day21()
+fun main() = day22()
 
 fun all() {
     val tasks = listOf(
