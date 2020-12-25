@@ -30,7 +30,6 @@ fun day16() {
     val validTickets = nearbyTickets.filter { validTicket(it, ticketOptions) }
     val matched = matchOptions(ticketOptions, validTickets)
     println(task1(nearbyTickets, ticketOptions))
-    println(matched)
     println(matched.filter { it.key.name.startsWith("departure") }
         .map { myTicket.numbers[it.value] }.map { it.toLong() }.fold(1L, { a, b -> a * b }))
 }

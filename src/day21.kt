@@ -16,8 +16,6 @@ fun day21() {
     val input = File("inputs/21.txt")
         .readLines()
         .map(::parseFood)
-    println(input)
-
     var currentInput = input.toList()
 
     // allergen -> ingriedent
@@ -36,7 +34,6 @@ fun day21() {
                 .filter { it.allergens.contains(allergen) }
                 .map { it.ingridients }
                 .fold1 { acc, item -> acc.intersect(item) } ?: emptySet()
-            println("options $allergen -> $options")
             if (options.size == 1) {
                 found = true
                 val matchedIngridient = options.first()
@@ -57,7 +54,6 @@ fun day21() {
         }
     }
     val safeFoods = allIngriedients.subtract(result.values)
-    println(safeFoods)
     val res1 = safeFoods.map { food ->
         input.map {
             when (it.ingridients.contains(food)) {
